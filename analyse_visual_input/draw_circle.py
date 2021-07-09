@@ -6,11 +6,15 @@ import time
 from pythonosc.udp_client import SimpleUDPClient
 
 client = SimpleUDPClient("192.168.178.28", 9000)  # Create client
+xmin = 120
+xmax = 304
+ymin = 0
+ymax = 280
 
-height = 140
-width = 270
+height = xmax - xmin
+width = ymax - ymin
 blank_image = np.zeros((height,width,3), np.uint8)
-
+print(height, width)
 # Center coordinates
 center_coordinates = (int(width * 0.5), int(height * 0.5))
  
@@ -32,6 +36,7 @@ params = cv2.SimpleBlobDetector_Params()
 params.blobColor = 255
 params.filterByArea = True
 params.minArea = 1
+params.maxArea = 200
 params.filterByCircularity = False
 params.filterByConvexity = False
 params.filterByInertia = False
@@ -45,7 +50,7 @@ else :
 def apply_thresh(img):
     img_not = cv2.bitwise_not(img)
     (thresh, im_bw) = cv2.threshold(img_not, 128, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)
-    print(thresh)
+    #print(thresh)
     im_bw = cv2.threshold(img_not, 200, 1, cv2.THRESH_BINARY)[1]
     return im_bw
 
@@ -53,7 +58,7 @@ camera = PiCamera()
 camera.resolution = (304, 304)
 #camera.zoom = (0.25, 0.25, 1.0, 1.0)
 
-camera.framerate = 5
+camera.framerate = 20
 rawCapture = PiRGBArray(camera, size=(304, 304))
 
 pictures = []
@@ -77,14 +82,15 @@ for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=
     #faces = face_cascade.detectMultiScale(gray, 1.1, 5)
     #DISPLAY TO WINDOW
     #cv2.imshow("Faces", image)
-    crop_img = gray[100:240, 30:300]
+    crop_img = gray[xmin:xmax, ymin:ymax]
     new_pic = apply_thresh(crop_img)
         
     overlap = cv2.multiply(circle, new_pic) * 255
     keypoints = detector.detect(overlap)
     
-    im_with_keypoints = cv2.drawKeypoints(overlap, keypoints, np.array([]), (0,0,255), cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
+    im_with_keypoints = cv2.drawKeypoints(crop_img, keypoints, np.array([]), (0,0,255), cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS) #overlap
     #print([item for sublist in keypoints for item in sublist.pt])
+    #if keypoints:
     points_flat = [item for sublist in keypoints for item in sublist.pt]
     client.send_message("/points", points_flat)   # Send float message
 
