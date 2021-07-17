@@ -96,8 +96,9 @@ for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=
 
     #if key == 32:
     image = frame.array
+    flipped = cv2.flip(image, -1) # flip both axis (-1) 
     #FACE DETECTION STUFF
-    gray = cv2.cvtColor(image,cv2.COLOR_BGR2GRAY)
+    gray = cv2.cvtColor(flipped,cv2.COLOR_BGR2GRAY)
     #faces = face_cascade.detectMultiScale(gray, 1.1, 5)
     #DISPLAY TO WINDOW
     #cv2.imshow("Faces", image)
@@ -114,4 +115,5 @@ for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=
     client.send_message("/points", points_flat)   # Send float message
 
     cv2.imshow("Faces", im_with_keypoints)
+
 

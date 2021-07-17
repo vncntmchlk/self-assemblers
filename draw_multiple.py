@@ -1,8 +1,8 @@
 import cv2  # Not actually necessary if you just want to create an image.
 import numpy as np
 
-height = 140
-width = 270
+height = 544
+width = 480
 blank_image = np.zeros((height,width,3), np.uint8)
 center_coordinates = (int(width * 0.5), int(height * 0.5))
  
