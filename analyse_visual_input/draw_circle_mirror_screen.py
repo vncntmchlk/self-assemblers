@@ -5,7 +5,9 @@ from picamera import PiCamera
 import time
 from pythonosc.udp_client import SimpleUDPClient
 
-client = SimpleUDPClient("192.168.0.182", 9000)  # Create client
+ip = "192.168.178.28"
+# ip = "192.168.0.182"
+client = SimpleUDPClient(ip, 9000)  # Create client
 
 fps = 20
 # adjust according to parts (may not need high fps for most parts)
@@ -20,10 +22,10 @@ fps = 20
 # mid res 20 fps
 resX = 480
 resY = 432
-xmin = 32
-xmax = resX - 120
-ymin = 18
-ymax = resY - 16
+xmin = 50 #oberseite
+xmax = resX - 120 #unterseite
+ymin = 18 # links
+ymax = resY - 16 # rechts
 
 #high res, 20 fps, cpu hot
 # resX = 544
@@ -96,8 +98,9 @@ for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=
 
     #if key == 32:
     image = frame.array
+    flipped = cv2.flip(image, -1) # flip both axis (-1) 
     #FACE DETECTION STUFF
-    gray = cv2.cvtColor(image,cv2.COLOR_BGR2GRAY)
+    gray = cv2.cvtColor(flipped,cv2.COLOR_BGR2GRAY)
     #faces = face_cascade.detectMultiScale(gray, 1.1, 5)
     #DISPLAY TO WINDOW
     #cv2.imshow("Faces", image)
@@ -114,4 +117,5 @@ for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=
     client.send_message("/points", points_flat)   # Send float message
 
     cv2.imshow("Faces", im_with_keypoints)
+
 
