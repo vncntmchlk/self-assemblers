@@ -21,14 +21,6 @@ q.view.background = Color.white;
 n = NetAddr("192.168.1.101", 8000);
 n.sendMsg("/circleNumber", 0,0)
 
-
-thisProcess.openUDPPort(8000);
-(
-~start = SystemClock.seconds;
-n.sendMsg("/rtGo", 1);
-OSCdef(\rtBack, { |msg| (SystemClock.seconds - ~start).postln}, "/rtBack");
-)
-
 Pbind(\dur, 2, \legato, 0.2, \freq,900, \latency, 0).play(~linkClock, quant: 4)
 ~linkClock = LinkClock.new(1).permanent_(true);
 ~linkClock.tempo = 0.5
@@ -48,7 +40,8 @@ var amps = (4: 127, 8: 70, 16: 45);
 	(
 		radius: radius,
 		circleNum: circleNum,
-		// instrumentNum: instrumentNum,
+		quantVal: quantVal,
+		instrumentNum: instrumentNum,
 		waitDur: waitDur,
 		getIntersections: { |self, angles| self.intersections = angles.select{|ang| ang[1] == self.radius} },
 		start: { |self|
@@ -57,18 +50,18 @@ var amps = (4: 127, 8: 70, 16: 45);
 					if(self.intersections.notNil){
 						self.intersections.do { |ang|
 							if(ang[0].asInteger == (i%360)){
-								thisThread.clock.sched(quantVal - thisThread.beats.mod(quantVal),{
+								thisThread.clock.sched(self.quantVal - thisThread.beats.mod(self.quantVal),{
 									var velocityOfCircle = (i % 90).fold2(45).linlin(0,44,10,127);
 									var velocityOfClock = ~quantAmps[thisThread.beats.mod(4)];
-									[self.circleNum, instrumentNum, velocityOfClock].postln;
-									n.sendMsg("/circleNumber", self.circleNum, instrumentNum, velocityOfClock)
+									[self.circleNum, self.instrumentNum, velocityOfClock].postln;
+									n.sendMsg("/circleNumber", self.circleNum, self.instrumentNum, velocityOfClock)
 								})
 							}
 						}
 					};
 					self.waitDur.wait;
 				}
-		}, ~linkClock).start(quant: [4,0,-0.025]);
+			}, ~linkClock).start(quant: [4,0,-0.025]);
 		}
 	);
 };
@@ -76,42 +69,45 @@ var amps = (4: 127, 8: 70, 16: 45);
 ~circ1 = ~makeAngle.(radius: 60, circleNum: 1, instrumentNum: 0, waitDur: (4/4)/360, quantVal: 1/8);
 ~circ2 = ~makeAngle.(radius: 80, circleNum: 2, instrumentNum: 0, waitDur: (5/16)/360, quantVal: 1/8);
 
+~freezeLeft = false;
+
 ​OSCdef(\points_left,{|msg|
-	var points = msg[1..].clump(2);
-	var angles;
-	if(points.notEmpty){
-		angles = points.collect {|p|
-			[Point(p[0], p[1]).translate(~offsetLeft).theta.raddeg + 180, Point(p[0], p[1]).dist(~offsetLeft * -1).round]
-		};
-		// angles.postln;
-	};
-	{
-		w.drawFunc = {
-			Pen.use {
-				Pen.addOval(Rect(~offsetLeft.x * -1 -40,~offsetLeft.y * -1 -40,80,80));
-				Pen.addOval(Rect(~offsetLeft.x * -1 - 60,~offsetLeft.y * -1 -60,120,120));
-				Pen.addOval(Rect(~offsetLeft.x * -1 - 80,~offsetLeft.y * -1 -80,160,160));
-				Pen.perform([\stroke]);
-
-				Pen.color = Color.green();
-				points.do {|p|
-					Pen.addRect(
-						Rect(*(p ++ [10, 10]))
-					);
-				};
-				Pen.perform([\fill]);
+	if(~freezeLeft.not){
+		var points = msg[1..].clump(2);
+		var angles;
+		if(points.notEmpty){
+			angles = points.collect {|p|
+				[Point(p[0], p[1]).translate(~offsetLeft).theta.raddeg + 180, Point(p[0], p[1]).dist(~offsetLeft * -1).round]
 			};
+			// angles.postln;
 		};
-		w.refresh;
-	}.fork(AppClock);
+		{
+			w.drawFunc = {
+				Pen.use {
+					Pen.addOval(Rect(~offsetLeft.x * -1 -40,~offsetLeft.y * -1 -40,80,80));
+					Pen.addOval(Rect(~offsetLeft.x * -1 - 60,~offsetLeft.y * -1 -60,120,120));
+					Pen.addOval(Rect(~offsetLeft.x * -1 - 80,~offsetLeft.y * -1 -80,160,160));
+					Pen.perform([\stroke]);
 
-	~circ0.getIntersections(angles);
-	~circ1.getIntersections(angles);
-	~circ2.getIntersections(angles);
+					Pen.color = Color.green();
+					points.do {|p|
+						Pen.addRect(
+							Rect(*(p ++ [10, 10]))
+						);
+					};
+					Pen.perform([\fill]);
+				};
+			};
+			w.refresh;
+		}.fork(AppClock);
 
+		~circ0.getIntersections(angles);
+		~circ1.getIntersections(angles);
+		~circ2.getIntersections(angles);
+	};
 }, '/points_left');
 
-~circ0.start;
+~circ0Player = ~circ0.start; // fuer .stop usw.
 ~circ1.start;
 ~circ2.start;
 )

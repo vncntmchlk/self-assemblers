@@ -1,14 +1,19 @@
 thisProcess.openUDPPort(9000);
 
+~rpiAddr = NetAddr("192.168.178.61", 9001);
+
+~rpiAddr.sendMsg("/takePic")
+~rpiAddr.sendMsg("/circles", 0)
+
 n = NetAddr("192.168.1.101", 8000);
 n.sendMsg("/freq1", 127.0)
 // clear by hand
 (
-~fps = 1/2;
+~fps = 10;
 ~quantSize = 0.05;
-w = Window("draw on me", Rect(128, 64, 382,316));
+c = Window("contours", Rect(128, 64, 382,316));
 ​
-v = UserView(w,w.view.bounds)
+v = UserView(c, c.view.bounds)
 .clearOnRefresh_(false)
 .background_(Color.white);
 
@@ -59,6 +64,26 @@ OSCdef(\finished, {|msg|
 
 		}.fork(AppClock);
 		// audio thread
+/*		Tdef(\contours,
+		loop {var thetaLists = List.new!40;
+			(0, (~quantSize * 100) .. (~fps * 100)).do {|ts|
+				if(pointsWithTime[ts].notNil){
+					pointsWithTime[ts].do {|pts, ix|
+						//if(pts[2] == 0){
+						var theta = (pts[1] - pts[0]).theta.raddeg;
+						thetaLists[pts[2]].addFirst(theta);
+						if(thetaLists[pts[2]].size > 14){
+							var thetaAvg = (thetaLists[pts[2]].sum / 15).linlin(-180,180,0,100);
+							//n.sendMsg("/freq" ++ (pts[2] + 1),thetaAvg);
+							[thetaAvg, pts[2]].postln;
+							thetaLists[pts[2]].pop
+						};
+						//}
+					}
+				};
+				~quantSize.wait;
+		}; }
+		);*/
 		{
 			var thetaLists = List.new!40;
 			(0, (~quantSize * 100) .. (~fps * 100)).do {|ts|
@@ -69,7 +94,7 @@ OSCdef(\finished, {|msg|
 						thetaLists[pts[2]].addFirst(theta);
 						if(thetaLists[pts[2]].size > 14){
 							var thetaAvg = (thetaLists[pts[2]].sum / 15).linlin(-180,180,0,100);
-							n.sendMsg("/freq" ++ (pts[2] + 1),thetaAvg);
+							//n.sendMsg("/freq" ++ (pts[2] + 1),thetaAvg);
 							[thetaAvg, pts[2]].postln;
 							thetaLists[pts[2]].pop
 						};
@@ -82,7 +107,7 @@ OSCdef(\finished, {|msg|
 	};
 }, '/finished');
 ​
-w.front;
+c.front;
 )
 
 
