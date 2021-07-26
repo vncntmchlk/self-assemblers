@@ -9,11 +9,14 @@ ymin = 0
 ymax = 295
 
 camera = PiCamera()
-camera.resolution = (544, 480)
+res = (144, 128) # (544, 480)
+
+camera.resolution = res
+
 #camera.zoom = (0.25, 0.25, 1.0, 1.0)
 
 camera.framerate = 20
-rawCapture = PiRGBArray(camera, size=(544, 480))
+rawCapture = PiRGBArray(camera, size=res)
 
 display_window = cv2.namedWindow("Faces")
 
