@@ -29,6 +29,32 @@ def takePic():#
     return crop_img
 
 pic = takePic()
-cv2.imwrite("why.jpg", pic)
+
+
+height = xmax - xmin
+width = ymax - ymin
+
+# Center coordinates
+center_coordinates = (int(width * 0.5), int(height * 0.5))
+
+# circle parameters
+#radius = 150
+color = (200, 0, 0)
+thickness = 2 # px
+    
+# left side circles
+left_center = (int(center_coordinates[0] * 0.5), center_coordinates[1])
+circle = cv2.circle(pic, left_center, 40, color, thickness)
+circle = cv2.circle(circle, left_center, 60, color, thickness)
+circle = cv2.circle(circle, left_center, 80, color, thickness)
+
+# right side circles
+right_center = (int(center_coordinates[0] * 1.5), center_coordinates[1])
+circle = cv2.circle(circle, right_center, 40, color, thickness)
+circle = cv2.circle(circle, right_center, 60, color, thickness)
+circle = cv2.circle(circle, right_center, 80, color, thickness)
+circle = cv2.cvtColor(circle,cv2.COLOR_BGR2GRAY)
+
+cv2.imwrite("why.jpg", circle)
 
 print("fertig")

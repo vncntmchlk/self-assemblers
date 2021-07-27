@@ -12,6 +12,8 @@ OSCdef(\resolution, { |msg|
 
 ~linkClock = LinkClock.new(1).permanent_(true);
 
+~mOut = ConnectVirmidi();
+~mOut.noteOn(0, 36, 100)
 {
 	var amps = (4: 127, 8: 70, 16: 45);
 	~quantAmps = Env([
