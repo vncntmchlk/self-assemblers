@@ -15,7 +15,7 @@ Tdef(\contours).stop;
 
 
 /// CIRCLES
-~rpiAddr.sendMsg("/circles", 1);
+~rpiAddr.sendMsg("/circles",1);
 
 ~circ0Player = ~circ0.start; // fuer .stop usw.
 ~circ1Player = ~circ1.start;
