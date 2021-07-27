@@ -1,7 +1,8 @@
 import cv2  
+#import numpy as np
 from picamera.array import PiRGBArray
 from picamera import PiCamera
-import time
+#import time
 
 resX = 480
 resY = 432
@@ -13,9 +14,9 @@ ymax = resY - 16 # rechts
 camera = PiCamera()
 camera.resolution = (resX, resY)
 
-rawCapture = PiRGBArray(camera, size=res)
+rawCapture = PiRGBArray(camera, size=(resX, resY))
 
-def takePic():
+def takePic():#
     #with rawCapture as stream:
     key = cv2.waitKey(1)
     rawCapture.truncate(0)
@@ -28,6 +29,6 @@ def takePic():
     return crop_img
 
 pic = takePic()
-cv2.imwrite("pic.jpeg", pic)
+cv2.imwrite("why.jpg", pic)
 
-
+print("fertig")
