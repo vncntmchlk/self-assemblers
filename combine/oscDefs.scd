@@ -1,15 +1,7 @@
 // 0sc -params
-// pro kreis- onOff (auch bei visuals?), quant, dur
 thisProcess.openUDPPort(9010);
-[\circ0, \circ1, \circ2, \circ3, \circ4, \circ5, \circ6, \circ7, \circ8, \circ9, \circ10].do { |sym|
-	/*	OSCdef((sym ++ "/quant").asSymbol, {|msg|
-	topEnvironment[sym].quantVal = 1 / msg[1];
-	}, "/" ++ sym ++ "/quant").fix;
-
-	OSCdef((sym ++ "/dur").asSymbol, {|msg|
-	topEnvironment[sym].waitDur = (msg[1] / 4) / 360;
-	}, "/" ++ sym ++ "/dur").fix;*/
-
+11.do { |sym|
+	(sym = "circ" ++ sym).asSymbol;
 	OSCdef((sym ++ "/onOff").asSymbol, {|msg|
 		//topEnvironment[sym].sharedValues.onOff = msg[1].asBoolean;
 		if(msg[1] == 1){
@@ -30,8 +22,8 @@ thisProcess.openUDPPort(9010);
 	}, "/" ++ sym ++ "/onOffFade").fix;
 };
 
-OSCdef(\freezeLeft, {|msg|
-	~freezeLeft = msg[1].asBoolean;
+/*OSCdef(\freezeLeft, {|msg|
+	~drumCircle = msg[1].asBoolean;
 }, "/freezeLeft").fix;
 
 OSCdef(\freezeRight, {|msg|
@@ -44,7 +36,7 @@ OSCdef(\freezeLeft2, {|msg|
 
 OSCdef(\freezeRight2, {|msg|
 	~freezeRight2 = msg[1].asBoolean;
-}, "/freezeRight2").fix;
+}, "/freezeRight2").fix;*/
 
 ~pitjes = (
 	indexPattern: Pseq((0..1), inf).asStream,
