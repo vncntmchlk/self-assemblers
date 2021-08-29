@@ -53,7 +53,7 @@ right_center = (int(center_coordinates[0] * 1.5), center_coordinates[1])
 circle = cv2.circle(circle, right_center, 40, color, thickness)
 circle = cv2.circle(circle, right_center, 60, color, thickness)
 circle = cv2.circle(circle, right_center, 80, color, thickness)
-circle = cv2.cvtColor(circle,cv2.COLOR_BGR2GRAY)
+#circle = cv2.cvtColor(circle,cv2.COLOR_BGR2GRAY)
 
 cv2.imwrite("why.jpg", circle)
 
