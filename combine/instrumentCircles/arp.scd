@@ -1,18 +1,17 @@
 // arp
 ~arpeggioFunc_1 = { |self, vel|
-	var duration = self.sharedValues.waitDur / self.circleLegato.next; // /4 entspricht einer umkreisung
+	var duration = self.sharedValues.waitDur * self.sharedValues.circleLegato; // /4 entspricht einer umkreisung
 	var note = if(self.arpCounter == 1){
 		~pitjes.nextNotes.wrapAt(self.arpCounter);
 	}{
 		~pitjes.getNotes.wrapAt(self.arpCounter);
 	};
 	self.arpCounter = (self.arpCounter + 1) % 2;
-	~benniAddr.sendMsg("/circleNumber", *([self.circleNum, self.sharedValues.instrumentNum, vel, duration, note]))
-	// [self.circleNum, self.sharedValues.instrumentNum, vel, duration, note].postln
+	~benniAddr.sendMsg("/circleNumber", *([self.circleNum, self.sharedValues.instrumentNum, vel, duration, note]));
 };
 
 ~arpeggioFunc_2 = { |self, vel|
-	var duration = self.sharedValues.waitDur / self.circleLegato.next; // /4 entspricht einer umkreisung
+	var duration = self.sharedValues.waitDur * self.sharedValues.circleLegato; // /4 entspricht einer umkreisung
 	var note = ~pitjes.getNotes.wrapAt(self.arpCounter + 2);
 	self.arpCounter = (self.arpCounter + 1) % 2;
 	~benniAddr.sendMsg("/circleNumber", *([self.circleNum, self.sharedValues.instrumentNum, vel, duration, note]))
@@ -20,7 +19,7 @@
 };
 
 ~arpeggioFunc_3 = { |self, vel|
-	var duration = self.sharedValues.waitDur / self.circleLegato.next; // /4 entspricht einer umkreisung
+	var duration = self.sharedValues.waitDur * self.sharedValues.circleLegato; // /4 entspricht einer umkreisung
 	var note = ~pitjes.getNotes.wrapAt(self.arpCounter + 2);
 	self.arpCounter = (self.arpCounter + 2) % 2;
 	~benniAddr.sendMsg("/circleNumber", *([self.circleNum, self.sharedValues.instrumentNum, vel, duration, note]))

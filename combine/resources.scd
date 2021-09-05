@@ -28,7 +28,7 @@ OSCdef(\resolution, { |msg|
 	],[1/4],[-4,4]);
 }.value;
 
-~makeAngle = { |radius, circleNum, instrumentNum, waitDur, quantVal = 4, guiColor, noteFunc, circleLegato = 8, muteEveryX = 0|
+~makeAngle = { |radius, circleNum, instrumentNum, waitDur, quantVal = 4, guiColor, noteFunc, circleLegato = (1/8), muteEveryX = 0|
 	var ev = (
 		sharedValues: OSCSharedEvent.new(netAddr: ~openStageControlAddr, prefix: "circ" ++ circleNum),
 		fadeObj: (
@@ -54,13 +54,10 @@ OSCdef(\resolution, { |msg|
 		testAngle: 0,
 		guiHit: 0,
 		guiColor: guiColor,
-		// triggerNote: {|self, vel| noteFunc.(self.circleNum, self.instrumentNum, vel, self.sharedValues.waitDur) },
 		triggerNote: noteFunc,
 		arpCounter: 0,
-		circleLegato: circleLegato,
 		muteNow: false,
 		muteCount: 0,
-		muteEveryX: muteEveryX,
 		getIntersections: { |self, angles| self.intersections = angles.select{|ang| ang[1] == self.radius} }
 	);
 	ev.sharedValues.fade = 0;
@@ -69,6 +66,8 @@ OSCdef(\resolution, { |msg|
 	ev.sharedValues.waitDur = waitDur;
 	ev.sharedValues.loopSpeedLevel = 1;
 	ev.sharedValues.instrumentNum = instrumentNum;
+	ev.sharedValues.circleLegato = circleLegato; // 1/4 ganz, 1/8 halb ..
+	ev.sharedValues.muteEveryX = muteEveryX;
 	ev.sharedValues.makeOSCdefsForKeys;
 
 	Tdef(("circ" ++ circleNum).asSymbol, {
@@ -77,9 +76,11 @@ OSCdef(\resolution, { |msg|
 			ev.testAngle = i % 360;
 			// bei jedem neuen Durchlauf vom Kreis
 			if(ev.testAngle == 0){
-				if(ev.muteEveryX > 0){
-					ev.muteNow = (ev.muteCount % ev.muteEveryX) == (ev.muteEveryX - 1);
+				if(ev.sharedValues.muteEveryX > 0){
+					ev.muteNow = (ev.muteCount % ev.sharedValues.muteEveryX) == (ev.sharedValues.muteEveryX - 1);
 					ev.muteCount = ev.muteCount + 1
+				}{
+					ev.muteNow = false
 				}
 			};
 
@@ -87,7 +88,7 @@ OSCdef(\resolution, { |msg|
 				ev.intersections.do { |ang, ix|
 					if(ang[0].asInteger == ev.testAngle){
 						var quantCalc = 1 / ev.sharedValues.quantVal;
-						ev.guiHit = 16; // koennte anhand der velocity skalieren
+						ev.guiHit = 24; // koennte anhand der velocity skalieren
 						thisThread.clock.sched(quantCalc - thisThread.beats.mod(quantCalc),{
 							var velocityOfCircle = (i % 90).fold2(45).linlin(0,44,10,127);
 							var velocityOfClock = ~quantAmps[thisThread.beats.mod(4)];
@@ -123,153 +124,3 @@ OSCdef(\points,{|msg|
 		};
 	};
 }, '/points').fix;
-
-/*
-~freezeLeft = false;
-~freezeRight = false;
-~freezeLeft2 = true;
-~freezeRight2 = true;
-
-OSCdef(\points_left,{|msg|
-if(~freezeLeft.not){
-var points = msg[1..].clump(2);
-var angles;
-if(points.notEmpty){
-angles = points.collect {|p|
-[Point(p[0], p[1]).translate(~offsetLeft * -1).theta.raddeg + 180, Point(p[0], p[1]).dist(~offsetLeft).round]//, 4, p] // die 0 fuer color change bei intersections..
-};
-// angles.postln;
-};
-~circ0.getIntersections(angles);
-~circ1.getIntersections(angles);
-~circ2.getIntersections(angles);
-~points_left = points;
-};
-// spaeter mal sinnvoller machen
-if(~freezeLeft2.not){
-var points = msg[1..].clump(2);
-var angles;
-if(points.notEmpty){
-angles = points.collect {|p|
-[Point(p[0], p[1]).translate(~offsetLeft * -1).theta.raddeg + 180, Point(p[0], p[1]).dist(~offsetLeft).round]//, 4, p] // die 0 fuer color change bei intersections..
-};
-// angles.postln;
-};
-~circ6.getIntersections(angles);
-~circ7.getIntersections(angles);
-~points_left2 = points;
-};
-}, '/points_left').fix;
-
-OSCdef(\points_right,{|msg|
-if(~freezeRight.not){
-var points = msg[1..].clump(2);
-var angles;
-if(points.notEmpty){
-angles = points.collect {|p|
-[Point(p[0], p[1]).translate(~offsetLeft * -1).theta.raddeg + 180, Point(p[0], p[1]).dist(~offsetLeft).round]
-};
-// angles.postln;
-};
-~circ3.getIntersections(angles);
-~circ4.getIntersections(angles);
-~circ5.getIntersections(angles);
-~points_right = points;
-};
-if(~freezeRight2.not){
-var points = msg[1..].clump(2);
-var angles;
-if(points.notEmpty){
-angles = points.collect {|p|
-[Point(p[0], p[1]).translate(~offsetLeft * -1).theta.raddeg + 180, Point(p[0], p[1]).dist(~offsetLeft).round]
-};
-};
-~circ8.getIntersections(angles);
-~circ9.getIntersections(angles);
-~circ10.getIntersections(angles);
-/*		~circ11.getIntersections(angles);
-~circ12.getIntersections(angles);
-~circ13.getIntersections(angles);
-~circ14.getIntersections(angles);*/
-
-~points_right2 = points;
-};
-}, '/points_right').fix;*/
-
-/*
-
-// contours
-~fps = 10;
-~quantSize = 0.05;
-
-~benniParams = ["/fmAmt", "/filterFreq", "/distortion", "/wavefrom", "/spectrum"] ++ ("/dummy" ! 100);
-
-~contours = List.new;
-OSCdef(\contour, {|msg|
-~contours.add(msg[1..].clump(2).collect{|c|c.asPoint});
-}, '/contour').fix;
-
-OSCdef(\finished, {|msg|
-if(~contours.size > 0){
-var contours = ~contours.copy;
-var pointsWithTime = List.new;
-var contsNow = List.new;
-contours.do {|cont, contIx|
-var quant = ~fps / cont.size; // 2fps
-var inc = 0;
-pointsWithTime.add(Order.new(2 /~quantSize));
-cont.doAdjacentPairs {|a, b|
-var index = (inc.round(~quantSize) * 100).asInteger;
-pointsWithTime[contIx][index] ?? { pointsWithTime[contIx][index] = List.new };
-pointsWithTime[contIx][index].add([a, b]);
-inc = inc + quant;
-}
-};
-{
-~gui.contoursView.drawFunc_{
-Pen.scale(2,2);
-contsNow.do {|cnt|
-cnt.do { |pt|
-​Pen.line(pt[0],pt[1]);
-};
-};
-//​Pen.line(ptsNow.first[0],ptsNow.last[1]);
-Pen.stroke;
-};
-}.defer;
-~contours.clear;
-
-Tdef(\contours, {
-"start drawing % contours".format(contours.size).postln;
-
-loop {var thetaLists = List.new!40;
-"contour loop".postln;
-AppClock.clear;
-{~gui.contoursView.clearDrawing}.defer;
-(0, (~quantSize * 100) .. (~fps * 100)).do {|ts, doIndex|
-contsNow.clear;
-pointsWithTime.do { |cont, contIx|
-if(cont[ts].notNil){
-contsNow.add(List.new);
-cont[ts].do {|pts, ix|
-var theta = (pts[1] - pts[0]).theta.raddeg;
-thetaLists[contIx].addFirst(theta);
-if(thetaLists[contIx].size > 14){
-var thetaAvg = (thetaLists[contIx].sum / 15).linlin(-180,180,40,100);
-~benniAddr.sendMsg(~benniParams[contIx], thetaAvg);
-thetaLists[contIx].pop
-};
-contsNow.last.add(pts);
-};
-// contsNow.last.add([cont[ts].first[0], cont[ts].last[1]]);
-};
-};
-{~gui.contoursView.refresh}.defer;
-~quantSize.wait;
-};
-}
-}).play;
-};
-}, '/finished').fix;
-
-*/

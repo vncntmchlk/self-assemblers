@@ -1,6 +1,7 @@
 // drums
 ~drumNoteFunc = { |self, vel|
-	~benniAddr.sendMsg("/circleNumber", self.circleNum, self.sharedValues.instrumentNum, vel)
+	~benniAddr.sendMsg("/circleNumber", self.circleNum, self.sharedValues.instrumentNum, vel);
+	~mOut.noteOn(self.sharedValues.instrumentNum, self.circleNum.mod(3) + 36,100)
 	// [self.circleNum, self.sharedValues.instrumentNum, vel].postln
 };
 ~circ0 = ~makeAngle.(radius: 60, circleNum: 0, instrumentNum: 0, waitDur: 4, quantVal: 16, guiColor: Color.hsv(0,1,1), noteFunc: ~drumNoteFunc);

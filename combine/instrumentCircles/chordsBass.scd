@@ -1,6 +1,6 @@
 // chords and bass
 ~chordNoteFunc = { |self, vel|
-	var duration = self.sharedValues.waitDur * self.circleLegato.next; // /4 entspricht einer umkreisung
+	var duration = self.sharedValues.waitDur * self.sharedValues.circleLegato; // /4 entspricht einer umkreisung
 	var notes = ~pitjes.nextNotes;
 	var addBenniNotes = -1 ! (7 - notes.size);
 	notes = notes ++ addBenniNotes;
@@ -15,7 +15,7 @@
 };
 
 ~bassNoteFunc_chooseNearest = { |self, vel|
-	var duration = self.sharedValues.waitDur * self.circleLegato.next; // /4 entspricht einer umkreisung
+	var duration = self.sharedValues.waitDur * self.sharedValues.circleLegato; // /4 entspricht einer umkreisung
 	var note;
 	if(~lastBassNote.isNil){
 		note = ~pitjes.getNotes[0].postln;
@@ -29,13 +29,13 @@
 
 ~circ6 = ~makeAngle.(
 	radius: 60, circleNum: 6, instrumentNum: 0, waitDur: 32,
-	quantVal: 8, guiColor: Color.hsv(0.4,1,1), noteFunc: ~bassNoteFunc,
+	quantVal: 8, guiColor: Color.hsv(0.1,1,1), noteFunc: ~bassNoteFunc,
 	circleLegato: 1/16
 );
 ~circ7 = ~makeAngle.(
 	radius: 90, circleNum: 7, instrumentNum: 0,
-	waitDur: 36, quantVal: 8, guiColor: Color.hsv(0.3,1,1), noteFunc: ~chordNoteFunc,
-	circleLegato: 1/8 // Pseq([1/8,1/16],inf).asStream
+	waitDur: 36, quantVal: 8, guiColor: Color.hsv(0,1,1), noteFunc: ~chordNoteFunc,
+	circleLegato: 1/8
 );
 
 ~chordsBassCircle = (

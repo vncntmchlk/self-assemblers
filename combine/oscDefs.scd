@@ -19,22 +19,6 @@ thisProcess.openUDPPort(9010);
 	}, "/" ++ sym ++ "/onOff").fix;
 };
 
-/*OSCdef(\freezeLeft, {|msg|
-~drumCircle = msg[1].asBoolean;
-}, "/freezeLeft").fix;
-
-OSCdef(\freezeRight, {|msg|
-~freezeRight = msg[1].asBoolean;
-}, "/freezeRight").fix;
-
-OSCdef(\freezeLeft2, {|msg|
-~freezeLeft2 = msg[1].asBoolean;
-}, "/freezeLeft2").fix;
-
-OSCdef(\freezeRight2, {|msg|
-~freezeRight2 = msg[1].asBoolean;
-}, "/freezeRight2").fix;*/
-
 ~pitjes = (
 	indexPattern: Pseq((0..1), inf).asStream,
 	chords: [[0,2,7,11],[0,5,7,10]],
