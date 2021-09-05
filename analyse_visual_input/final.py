@@ -7,6 +7,15 @@ from pythonosc.udp_client import SimpleUDPClient
 from pythonosc import dispatcher
 from pythonosc import osc_server
 import socket
+import io
+import struct
+import pickle
+import zlib
+
+client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+client_socket.connect(('10.42.0.1', 8485))
+connection = client_socket.makefile('wb')
+encode_param = [int(cv2.IMWRITE_JPEG_QUALITY), 90]
 
 def get_ip():
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -135,6 +144,11 @@ def startVideo(e):
         #print("video .. ")
         new_pic = takePic()
         overlap = cv2.multiply(circle, new_pic) * 255
+        dst = cv2.addWeighted(new_pic * 255, 0.5, overlap, 0.5, 0.0)
+        result, frame = cv2.imencode('.jpg', dst, encode_param)
+        data = pickle.dumps(frame, 0)
+        size = len(data)
+        client_socket.sendall(struct.pack(">L", size) + data)
         keypoints = detector.detect(overlap)
         points = [item for sublist in keypoints for item in sublist.pt]
         client.send_message("/points", points)

@@ -19,6 +19,12 @@ print('Socket now listening')
 
 conn,addr=s.accept()
 
+width = int(392 * 2)
+height = int(270 * 2)
+dim = (width, height)
+  
+
+
 data = b""
 payload_size = struct.calcsize(">L")
 print("payload_size: {}".format(payload_size))
@@ -39,5 +45,7 @@ while True:
 
     frame=pickle.loads(frame_data, fix_imports=True, encoding="bytes")
     frame = cv2.imdecode(frame, cv2.IMREAD_COLOR)
-    cv2.imshow('ImageWindow',frame)
+    # resize image
+    resized = cv2.resize(frame, dim, interpolation = cv2.INTER_AREA)
+    cv2.imshow('ImageWindow',resized)
     cv2.waitKey(1)

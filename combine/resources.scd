@@ -4,11 +4,11 @@ thisProcess.openUDPPort(9000); // receive port from rpi
 thisProcess.openUDPPort(9010); // receive port from open stage control
 ~rpiAddr = NetAddr("10.42.0.208", 9001); // send addr to rpi
 /*~benniAddr = NetAddr("192.168.1.100", 8000); */// send addr to benni
-~benniAddr = NetAddr("192.168.1.102", 8000);
+~benniAddr = NetAddr("192.168.1.100", 8000);
 ~openStageControlAddr = NetAddr("127.0.0.1", 9001);
 
 ~gui ?? {~gui = ()};
-~gui.offset = Point( 98, 135 ); //wird auch fuer rechts benutzt...
+~gui.offset = Point( 196, 135 ); //wird auch fuer rechts benutzt...
 OSCdef(\resolution, { |msg|
 	~gui.resolution = msg[[1,2]].postln;
 	~gui.offset = Point(*msg[[3,4]]).postln;
@@ -43,7 +43,8 @@ OSCdef(\resolution, { |msg|
 			dec: {|self|
 				self.player.stop;
 				self.player = {
-					while {self.val >= 0.001}{ self.val = (self.val - 0.01).round(0.01).postln; (self.fadeTime * 0.01).wait }
+					while {self.val >= 0.001}{ self.val = (self.val - 0.01).round(0.01).postln; (self.fadeTime * 0.01).wait };
+					if(ev.sharedValues.onOff == 0){Tdef(("circ" ++ circleNum).asSymbol).stop};
 				}.fork
 			}
 		),
@@ -62,6 +63,7 @@ OSCdef(\resolution, { |msg|
 		muteEveryX: muteEveryX,
 		getIntersections: { |self, angles| self.intersections = angles.select{|ang| ang[1] == self.radius} }
 	);
+	ev.sharedValues.fade = 0;
 	ev.sharedValues.onOff = 0;
 	ev.sharedValues.quantVal = quantVal;
 	ev.sharedValues.waitDur = waitDur;

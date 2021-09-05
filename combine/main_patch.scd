@@ -2,33 +2,41 @@
 "gui_windows.scd".loadRelative;
 "oscDefs.scd".loadRelative;
 
-
+Tdef(\circ2).stop
 /// CIRCLES
+"python ~/Repos/self-assemblers/rec_images.py".runInTerminal
+
 ~rpiAddr.sendMsg("/circles", 1);
 ~rpiAddr.sendMsg("/circles", 0);
 
+/*( sollte durch skipjack erledigt sein?
+~drumCircle.refreshPoints.start;
+~clickCircle.refreshPoints.start;
+~chordsBassCircle.refreshPoints.start;
+~arpCircle.refreshPoints.start;
+)*/
+~oscPresets.savePreset("default")
+~oscPresets.loadPreset("default")
+
+~circ0.sharedValues.getPrefix
 
 Tdef(\circ0).play(~linkClock, doReset: true, quant: [1,0,-0.025]);
 Tdef(\circ1).play(~linkClock, doReset: true, quant: [1,0,-0.025]);
 Tdef(\circ2).play(~linkClock, doReset: true, quant: [1,0,-0.025]);
-~drumCircle.refreshPoints.start;
 
 Tdef(\circ3).play(~linkClock, doReset: true, quant: [1,0,-0.025]);
 Tdef(\circ4).play(~linkClock, doReset: true, quant: [1,0,-0.025]);
 Tdef(\circ5).play(~linkClock, doReset: true, quant: [1,0,-0.025]);
-~clickCircle.refreshPoints.start;
 
 Tdef(\circ6).play(~linkClock, doReset: true, quant: [1,0,-0.025]);
 Tdef(\circ7).play(~linkClock, doReset: true, quant: [1,0,-0.025]);
-~chordsBassCircle.refreshPoints.start;
 
 Tdef(\circ8).play(~linkClock, doReset: true, quant: [1,0,-0.025]);
 Tdef(\circ9).play(~linkClock, doReset: true, quant: [1,0,-0.025]);
 Tdef(\circ10).play(~linkClock, doReset: true, quant: [1,0,-0.025]);
-~arpCircle.refreshPoints.start;
 
 ~circ0.quantVal;
-~circ0.instrumentNum;
+~circ0.sharedValues.instrumentNum = 10
 
 ~circ7.sharedValues.waitDur = 32
 

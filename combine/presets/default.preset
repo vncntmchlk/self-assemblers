@@ -1,0 +1,84 @@
+var o, p;
+o = [
+	Event.prNew,  Array.prNew(64),  Array.prNew(10),  Array.prNew(2),  
+	Array.prNew(10),  Array.prNew(10),  Array.prNew(10),  Array.prNew(10),  
+	Array.prNew(10),  Array.prNew(2),  Array.prNew(2),  Array.prNew(10),  
+	Array.prNew(2),  Array.prNew(10),  Array.prNew(10),  Array.prNew(10),  
+	Array.prNew(10)
+];
+p = [
+	// Event
+	0, [ array: o[1],  size: 15,  
+		proto: nil,  parent: nil,  
+		know: true ],  
+	// Array
+	1, [ nil,  nil,  nil,  nil,  
+		'circ7',  o[2],  nil,  nil,  
+		'chordsBassCircle',  o[3],  'circ1',  o[4],  
+		'circ4',  o[5],  'circ9',  o[6],  
+		'circ3',  o[7],  'circ5',  o[8],  
+		'drumCircle',  o[9],  'clickCircle',  o[10],  
+		'circ6',  o[11],  nil,  nil,  
+		'arpCircle',  o[12],  nil,  nil,  
+		nil,  nil,  nil,  nil,  
+		nil,  nil,  nil,  nil,  
+		nil,  nil,  nil,  nil,  
+		nil,  nil,  'circ0',  o[13],  
+		nil,  nil,  nil,  nil,  
+		'circ2',  o[14],  'circ8',  o[15],  
+		'circ10',  o[16],  nil,  nil,  
+		nil,  nil,  nil,  nil ],  
+	// Array
+	2, [ 'waitDur',  36,  'onOff',  0,  
+		'instrumentNum',  0,  'loopSpeedLevel',  1,  
+		'quantVal',  8 ],  
+	// Array
+	3, [ 'freezeMe',  true ],  
+	// Array
+	4, [ 'waitDur',  9,  'onOff',  0,  
+		'instrumentNum',  0,  'loopSpeedLevel',  1,  
+		'quantVal',  16 ],  
+	// Array
+	5, [ 'waitDur',  16,  'onOff',  0,  
+		'instrumentNum',  0,  'loopSpeedLevel',  1,  
+		'quantVal',  8 ],  
+	// Array
+	6, [ 'waitDur',  8,  'onOff',  0,  
+		'instrumentNum',  1,  'loopSpeedLevel',  1,  
+		'quantVal',  8 ],  
+	// Array
+	7, [ 'waitDur',  8,  'onOff',  0,  
+		'instrumentNum',  0,  'loopSpeedLevel',  1,  
+		'quantVal',  8 ],  
+	// Array
+	8, [ 'waitDur',  24,  'onOff',  0,  
+		'instrumentNum',  0,  'loopSpeedLevel',  1,  
+		'quantVal',  8 ],  
+	// Array
+	9, [ 'freezeMe',  true ],  
+	// Array
+	10, [ 'freezeMe',  true ],  
+	// Array
+	11, [ 'waitDur',  32,  'onOff',  0,  
+		'instrumentNum',  0,  'loopSpeedLevel',  1,  
+		'quantVal',  8 ],  
+	// Array
+	12, [ 'freezeMe',  true ],  
+	// Array
+	13, [ 'waitDur',  4,  'onOff',  0,  
+		'instrumentNum',  0,  'loopSpeedLevel',  1,  
+		'quantVal',  16 ],  
+	// Array
+	14, [ 'waitDur',  16,  'onOff',  0,  
+		'instrumentNum',  0,  'loopSpeedLevel',  1,  
+		'quantVal',  16 ],  
+	// Array
+	15, [ 'waitDur',  8,  'onOff',  0,  
+		'instrumentNum',  0,  'loopSpeedLevel',  1,  
+		'quantVal',  8 ],  
+	// Array
+	16, [ 'waitDur',  8,  'onOff',  0,  
+		'instrumentNum',  2,  'loopSpeedLevel',  1,  
+		'quantVal',  8 ]
+];
+prUnarchive(o,p);

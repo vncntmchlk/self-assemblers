@@ -1,27 +1,44 @@
 ~gui = ();
 ~gui.resolution = [ 270, 392 ];
-~gui.offset = Point( 98, 135 );
+~gui.offset = Point( 196, 135 ); //wird auch fuer rechts benutzt...
 ~gui.fps = 20;
+~gui.res2 = ~gui.resolution * 2;
 
-~drumCircle.window = Window("drum", Rect(0, 64, ~gui.resolution[1], ~gui.resolution[0] * 2));
+~gui.window = Window("circles", Rect(0, 0, ~gui.resolution[1] * 4 + 6, ~gui.resolution[0] * 4 + 6));
+~gui.window.view.background = Color.black;
+~gui.window.front;
+
+
+~drumCircle.view = UserView(~gui.window, Rect(2, 2, ~gui.res2[1], ~gui.res2[0])).background_(Color.white);
+~clickCircle.view = UserView(~gui.window, Rect(2, ~gui.res2[0] + 4, ~gui.res2[1], ~gui.res2[0])).background_(Color.white);
+~chordsBassCircle.view = UserView(~gui.window, Rect(~gui.res2[1] + 4, 2, ~gui.res2[1], ~gui.res2[0])).background_(Color.white);
+~arpCircle.view = UserView(~gui.window, Rect(~gui.res2[1] + 4, ~gui.res2[0] + 4, ~gui.res2[1], ~gui.res2[0])).background_(Color.white);
+
+/*~drumCircle.window = Window("drum", Rect(0, 64, ~gui.resolution[1] * 2, ~gui.resolution[0] * 2));
 ~drumCircle.window.front;
 ~drumCircle.window.view.background = Color.white;
 
-~clickCircle.window = Window("clicks", Rect(~gui.resolution[1], 64, ~gui.resolution[1], ~gui.resolution[0] * 2));
+~clickCircle.window = Window("clicks", Rect(~gui.resolution[1], 64, ~gui.resolution[1] * 2, ~gui.resolution[0] * 2));
 ~clickCircle.window.front;
 ~clickCircle.window.view.background = Color.white;
 
-~chordsBassCircle.window = Window("chords bass", Rect(~gui.resolution[1] * 2, 64, ~gui.resolution[1], ~gui.resolution[0] * 2));
+~chordsBassCircle.window = Window("chords bass", Rect(~gui.resolution[1] * 2, 64, ~gui.resolution[1] * 2, ~gui.resolution[0] * 2));
 ~chordsBassCircle.window.front;
 ~chordsBassCircle.window.view.background = Color.white;
 
-~arpCircle.window = Window("arp", Rect(~gui.resolution[1] * 3, 64, ~gui.resolution[1], ~gui.resolution[0] * 2));
+~arpCircle.window = Window("arp", Rect(~gui.resolution[1] * 3, 64, ~gui.resolution[1] * 2, ~gui.resolution[0] * 2));
 ~arpCircle.window.front;
-~arpCircle.window.view.background = Color.white;
+~arpCircle.window.view.background = Color.white;*/
+
+~gui.refreshPoints = SkipJack(
+	updateFunc: {~gui.window.refresh},
+	dt: (1 / ~gui.fps)
+);
 
 [~drumCircle, ~clickCircle, ~chordsBassCircle, ~arpCircle].do {|instrumentCircle|
-	instrumentCircle.window.drawFunc = {
+	instrumentCircle.view.drawFunc = {
 		Pen.scale(2,2);
+		Pen.stringAtPoint(instrumentCircle.guiText, 4@5, Font("Hack", 16), Color.black);
 		Pen.use {
 			var hits = List.new;
 			instrumentCircle.circs.do { |ci|
@@ -69,12 +86,17 @@
 		};
 	};
 
-	instrumentCircle.refreshPoints = Task({
-		loop {
-			instrumentCircle.window.refresh;
-			(1 / ~gui.fps).wait;
-		};
-	}, AppClock);
+	/*instrumentCircle.refreshPoints = Task({
+	loop {
+	instrumentCircle.window.refresh;
+	(1 / ~gui.fps).wait;
+	};
+	}, AppClock);*/
+
+	/*	instrumentCircle.refreshPoints = SkipJack(
+	updateFunc: {instrumentCircle.window.refresh},
+	dt: (1 / ~gui.fps)
+	);*/
 };
 /*~gui.pointsLeftWindow = Window("left", Rect(0, 64, ~resolution[1], ~resolution[0] * 2));
 ~gui.pointsLeftWindow.front;

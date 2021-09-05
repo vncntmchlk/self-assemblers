@@ -7,6 +7,15 @@ from pythonosc.udp_client import SimpleUDPClient
 from pythonosc import dispatcher
 from pythonosc import osc_server
 import socket
+import io
+import struct
+import pickle
+import zlib
+
+client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+client_socket.connect(('10.42.0.1', 8485))
+connection = client_socket.makefile('wb')
+encode_param = [int(cv2.IMWRITE_JPEG_QUALITY), 90]
 
 def get_ip():
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -25,6 +34,7 @@ def numpy_flat(a):
     #return list(np.array(a).flat)
 
 ip = "10.42.0.1"
+#ip = "192.168.1.101"
 # ip = "192.168.0.182"
 #ip = "192.168.178.28"
 client = SimpleUDPClient(ip, 9000)  # Create client
@@ -52,18 +62,26 @@ print(height, width)
 # Center coordinates
 center_coordinates = (int(width * 0.5), int(height * 0.5))
 
+
 # circle parameters
 #radius = 150
 color = (1, 1, 1)
 thickness = 2 # px
     
-# circle
-circle = cv2.circle(blank_image, center_coordinates, 60, color, thickness)
-circle = cv2.circle(circle, center_coordinates, 90, color, thickness)
-circle = cv2.circle(circle, center_coordinates, 120, color, thickness)
+# left side circles
+left_center = (int(center_coordinates[0] * 0.5), center_coordinates[1])
+circle = cv2.circle(blank_image, left_center, 40, color, thickness)
+circle = cv2.circle(circle, left_center, 60, color, thickness)
+circle = cv2.circle(circle, left_center, 80, color, thickness)
+
+# right side circles
+right_center = (int(center_coordinates[0] * 1.5), center_coordinates[1])
+circle = cv2.circle(circle, right_center, 40, color, thickness)
+circle = cv2.circle(circle, right_center, 60, color, thickness)
+circle = cv2.circle(circle, right_center, 80, color, thickness)
 circle = cv2.cvtColor(circle,cv2.COLOR_BGR2GRAY)
 
-client.send_message("/resolution", [height, width, center_coordinates[0], center_coordinates[1]])
+client.send_message("/resolution", [height, width, left_center[0], left_center[1], right_center[0], right_center[1]])
 
 params = cv2.SimpleBlobDetector_Params()
 params.blobColor = 255
@@ -83,10 +101,8 @@ else :
 def apply_thresh(img):
     img_not = cv2.bitwise_not(img)
     (thresh, im_bw) = cv2.threshold(img_not, 128, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)
-    if thresh > 170:
-        im_bw = cv2.threshold(img_not, thresh, 1, cv2.THRESH_BINARY)[1]
-    else:
-        im_bw = cv2.threshold(img_not, 170, 1, cv2.THRESH_BINARY)[1]
+    #print(thresh)
+    im_bw = cv2.threshold(img_not, 190, 1, cv2.THRESH_BINARY)[1]
     return im_bw
 
 camera = PiCamera()
@@ -125,6 +141,7 @@ def takePic():
 
 circleOn = 0
     
+    
 import threading
 
 e = threading.Event()
@@ -135,10 +152,24 @@ def startVideo(e):
         #print("video .. ")
         new_pic = takePic()
         overlap = cv2.multiply(circle, new_pic) * 255
-        keypoints = detector.detect(overlap)
-        points = [item for sublist in keypoints for item in sublist.pt]
-        client.send_message("/points", points)
+        dst = cv2.addWeighted(new_pic * 255, 0.5, overlap, 0.5, 0.0)
+        result, frame = cv2.imencode('.jpg', dst, encode_param)
+	# data = zlib.compress(pickle.dumps(frame, 0))
+        data = pickle.dumps(frame, 0)
+        size = len(data)
+        client_socket.sendall(struct.pack(">L", size) + data)
+        crop_left = overlap[:, 0:center_coordinates[0]]# 0:center_coordinates[0]
+        crop_right = overlap[:, center_coordinates[0]:width]
+        keypoints_left = detector.detect(crop_left)
+        keypoints_right = detector.detect(crop_right)
+        points_left = [item for sublist in keypoints_left for item in sublist.pt]
+        client.send_message("/points_left", points_left)
+        points_right = [item for sublist in keypoints_right for item in sublist.pt]
+        client.send_message("/points_right", points_right)
+#         print(overlap)
+#        cv2.imshow("Faces", overlap)
         time.sleep(0.001)
+#        print(points_left)    
 
 def circleOnOff(address, *args):
     circleOn = args[0]
